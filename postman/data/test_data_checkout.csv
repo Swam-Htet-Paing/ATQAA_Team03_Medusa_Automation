@@ -1,10 +1,12 @@
-variant_id,item_qty
-variant_01M4CX92CRHTENEF0SNNWNR6EF,1
-variant_01M4CX92CRHTENEF0SNNWNR6EF,2
-variant_01M4CX92CRHTENEF0SNNWNR6EF,5
-variant_01M4CX92CRHTENEF0SNNWNR6EF,1
-variant_01M4CX92CRHTENEF0SNNWNR6EF,2
-variant_01M4CX92CRHTENEF0SNNWNR6EF,5
-variant_01M4CX92CRHTENEF0SNNWNR6EF,1
-variant_01M4CX92CRHTENEF0SNNWNR6EF,2
-variant_01M4CX92CRHTENEF0SNNWNR6EF,5
+first_name,last_name,email,address_1,postal_code,country_code,item_qty,promo_code
+John,Doe,john.doe@example.com,123 Main St,700000,VN,2,SUMMER20
+Jane,Smith,jane.smith@example.com,456 Market Ave,10001,US,1,WELCOME10
+Alex,Johnson,alex.j@example.com,789 Oak Rd,SW1A 1AA,GB,5,
+Christopher,Montgomery-Smith,chris.ms@example.com,"Apt 4B, 1234 Very Long Street Name That Extends Beyond Normal Limits Building C Floor 9",90210,US,10,BLACKFRIDAY
+Marie,Curie,marie.curie@example.com,75 Rue de Paris,75005,FR,3,SCIENCE5
+Kenji,Sato,kenji.sato@example.com,1-2-3 Shibuya,150-0002,JP,1,TOKYO10
+José,García-López,jose.gl@example.com,Plaza Mayor 1,28001,ES,1,
+Anna,Kovacs,anna.kovacs@example.com,Kossuth Lajos utca 12,1053,HU,4,BUDAPEST
+Liam,O'Connor,liam.oc@example.com,Grafton Street 45,D02 X285,IE,2,DUBLIN20
+Sofia,Rossi,sofia.rossi@example.com,Via Roma 10,00100,IT,6,ROMA50
+David,Miller,david.miller@example.com,999 Pine Road,30301,US,99,MAXDISCOUNT
