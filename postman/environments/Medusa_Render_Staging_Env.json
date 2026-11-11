@@ -4,13 +4,13 @@
 	"values": [
 		{
 			"key": "baseUrl",
-			"value": "",
+			"value": "https://atqaa-medusa-store.onrender.com/store",
 			"type": "default",
 			"enabled": true
 		},
 		{
 			"key": "adminBaseUrl",
-			"value": "",
+			"value": "https://atqaa-medusa-store.onrender.com",
 			"type": "default",
 			"enabled": true
 		},
@@ -46,13 +46,13 @@
 		},
 		{
 			"key": "adminPassword",
-			"value": "",
+			"value": "vlscStudent123456",
 			"type": "default",
 			"enabled": true
 		},
 		{
 			"key": "publishable_api_key",
-			"value": "",
+			"value": "pk_c6c27bfcd5b891a5cc2f4aec1e85a48a414a1368f4acec3ff7ee4b60dbd1910a",
 			"type": "default",
 			"enabled": true
 		},
