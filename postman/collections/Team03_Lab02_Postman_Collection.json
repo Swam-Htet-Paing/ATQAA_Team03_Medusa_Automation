@@ -1,0 +1,547 @@
+{
+  "info": {
+    "_postman_id": "65a7a707-10f6-47a6-8e20-966248f4e2b0",
+    "name": "Team03_Medusa_API_Collection",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "57158998"
+  },
+  "item": [
+    {
+      "name": "01_Storefront_Catalog",
+      "item": [
+        {
+          "name": "Get Product List",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200 OK\", function () { \n\n    pm.response.to.have.status(200); \n\n}); \n\n \n\npm.test(\"Extract active variantId dynamically\", function () { \n\n    let jsonData = pm.response.json(); \n\n    pm.expect(jsonData.products).to.be.an(\"array\").that.is.not.empty; \n\n \n\n    // Locate first product with variants \n\n    let productWithVariants = jsonData.products.find(p => p.variants && p.variants.length > 0); \n\n    pm.expect(productWithVariants).to.not.be.undefined; \n\n \n\n    let variantId = productWithVariants.variants[0].id; \n\n    pm.environment.set(\"variantId\", variantId); \n\n    console.log(\"Dynamically extracted variantId:\", variantId); \n\n});\n\n// ========================================== \n\n// Task 4.2.2: Ajv JSON Schema for Products \n\n// ========================================== \n\nconst productCatalogSchema = { \n\n    \"$schema\": \"http://json-schema.org/draft-07/schema#\", \n\n    \"type\": \"object\", \n\n    \"required\": [\"products\"], \n\n    \"properties\": { \n\n        \"products\": { \n\n            \"type\": \"array\", \n\n            \"items\": { \n\n                \"type\": \"object\", \n\n                \"required\": [\"id\", \"title\", \"handle\", \"variants\"], \n\n                \"properties\": { \n\n                    \"id\": { \"type\": \"string\" }, \n\n                    \"title\": { \"type\": \"string\" }, \n\n                    \"handle\": { \"type\": \"string\" }, \n\n                    \"variants\": { \n\n                        \"type\": \"array\", \n\n                        \"items\": { \n\n                            \"type\": \"object\", \n\n                            \"required\": [\"id\", \"title\", \"product_id\"], \n\n                            \"properties\": { \n\n                                \"id\": { \"type\": \"string\" }, \n\n                                \"title\": { \"type\": \"string\" }, \n\n                                \"product_id\": { \"type\": \"string\" } \n\n                            } \n\n                        } \n\n                    } \n\n                } \n\n            } \n\n        } \n\n    } \n\n}; \n\n \n\nconst Ajv = require('ajv'); \n\nconst ajv = new Ajv(); \n\nconst validate = ajv.compile(productCatalogSchema); \n\n \n\npm.test(\"[Contract Validation] GET /products adheres to Ajv JSON Schema\", function () { \n\n    const jsonData = pm.response.json(); \n\n    pm.expect(validate(jsonData)).to.be.true; \n\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Cache-Control",
+                "value": "no-cache"
+              },
+              {
+                "key": "Postman-Token",
+                "value": "<calculated when request is sent>"
+              },
+              {
+                "key": "Host",
+                "value": "<calculated when request is sent>"
+              },
+              {
+                "key": "User-Agent",
+                "value": "PostmanRuntime/7.39.1"
+              },
+              {
+                "key": "Accept",
+                "value": "*/*"
+              },
+              {
+                "key": "Accept-Encoding",
+                "value": "gzip, deflate, br"
+              },
+              {
+                "key": "Connection",
+                "value": "keep-alive"
+              },
+              {
+                "key": "x-publishable-api-key",
+                "value": "pk_c6c27bfcd5b891a5cc2f4aec1e85a48a414a1368f4acec3ff7ee4b60dbd1910a"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/products",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "products"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Product Variants",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200 OK\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\n// pm.test(\"Response should contain a variants array\", function () {\r\n//     pm.expect(jsonData).to.have.property(\"variants\");\r\n//     pm.expect(jsonData.variants).to.be.an(\"array\");\r\n// });\r\n\r\nvar jsonData = pm.response.json();\r\npm.environment.set(\"variantId\", jsonData.variants[0].id);\r\n"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/product-variants",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "product-variants"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Cart",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Cart created with Status 200 or 201\", function () { \r\n\r\n    pm.expect(pm.response.code).to.be.oneOf([200, 201]); \r\n\r\n}); \r\n\r\n \r\n\r\npm.test(\"Extract cartId dynamically\", function () { \r\n\r\n    let jsonData = pm.response.json(); \r\n\r\n    pm.expect(jsonData.cart).to.be.an(\"object\"); \r\n\r\n    pm.expect(jsonData.cart.id).to.not.be.undefined; \r\n\r\n \r\n\r\n    pm.environment.set(\"cartId\", jsonData.cart.id); \r\n\r\n    console.log(\"Dynamically extracted cartId:\", jsonData.cart.id); \r\n\r\n}); "
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "x-publishable-api-key",
+                "value": "pk_c6c27bfcd5b891a5cc2f4aec1e85a48a414a1368f4acec3ff7ee4b60dbd1910a"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/carts",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "carts"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Cart Schema Validation",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// ========================================== \r\n\r\n// Task 4.2.2: Ajv JSON Schema for Cart \r\n\r\n// ========================================== \r\n\r\nconst cartResponseSchema = { \r\n\r\n    \"$schema\": \"http://json-schema.org/draft-07/schema#\", \r\n\r\n    \"type\": \"object\", \r\n\r\n    \"required\": [\"cart\"], \r\n\r\n    \"properties\": { \r\n\r\n        \"cart\": { \r\n\r\n            \"type\": \"object\", \r\n\r\n            \"required\": [\"id\", \"items\", \"region_id\", \"currency_code\"], \r\n\r\n            \"properties\": { \r\n\r\n                \"id\": { \"type\": \"string\" }, \r\n\r\n                \"region_id\": { \"type\": \"string\" }, \r\n\r\n                \"currency_code\": { \"type\": \"string\" }, \r\n\r\n                \"items\": { \r\n\r\n                    \"type\": \"array\", \r\n\r\n                    \"items\": { \r\n\r\n                        \"type\": \"object\", \r\n\r\n                        \"required\": [\"id\", \"title\", \"quantity\", \"unit_price\", \"variant_id\"], \r\n\r\n                        \"properties\": { \r\n\r\n                            \"id\": { \"type\": \"string\" }, \r\n\r\n                            \"title\": { \"type\": \"string\" }, \r\n\r\n                            \"quantity\": { \"type\": \"number\" }, \r\n\r\n                            \"unit_price\": { \"type\": \"number\" }, \r\n\r\n                            \"variant_id\": { \"type\": \"string\" } \r\n\r\n                        } \r\n\r\n                    } \r\n\r\n                } \r\n\r\n            } \r\n\r\n        } \r\n\r\n    } \r\n\r\n}; \r\n\r\n \r\n\r\npm.test(\"[Contract Validation] GET /carts/{{cartId}} adheres to Ajv JSON Schema\", function () { \r\n\r\n    pm.response.to.have.jsonSchema(cartResponseSchema); \r\n\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/carts/{{cartId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "carts",
+                "{{cartId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Add Item to cart",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Cart created with Status 200 or 201\", function () { \r\n\r\n    pm.expect(pm.response.code).to.be.oneOf([200, 201]); \r\n\r\n}); \r\n\r\npm.test(\"[DDT] Item quantity matches iteration CSV data\", function () { \r\n\r\n    let expectedQty = pm.iterationData.get(\"item_qty\"); \r\n\r\n    let responseData = pm.response.json(); \r\n\r\n     \r\n\r\n    if (responseData.cart && responseData.cart.items) { \r\n\r\n        let addedItem = responseData.cart.items.find(i => i.variant_id === pm.environment.get(\"variantId\")); \r\n\r\n        pm.expect(addedItem.quantity).to.eql(Number(expectedQty)); \r\n\r\n    } \r\n\r\n}); "
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "x-publishable-api-key",
+                "value": "pk_c6c27bfcd5b891a5cc2f4aec1e85a48a414a1368f4acec3ff7ee4b60dbd1910a"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"variant_id\": \"{{variantId}}\",\r\n    \"quantity\": 1\r\n    // \"quantity\": {{item_qty}}\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/carts/{{cartId}}/line-items",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "carts",
+                "{{cartId}}",
+                "line-items"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Select Shipping Method",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// If specific shipping option ID is unknown, fetch available shipping options \r\n\r\npm.sendRequest({ \r\n\r\n    url: pm.environment.get(\"baseUrl\") + \"/shipping-options/\" + pm.environment.get(\"cartId\"), \r\n\r\n    method: \"GET\" \r\n\r\n}, function (err, res) { \r\n\r\n    if (!err && res.code === 200) { \r\n\r\n        let options = res.json().shipping_options; \r\n\r\n        if (options && options.length > 0) { \r\n\r\n            pm.environment.set(\"shippingOptionId\", options[0].id); \r\n\r\n        } \r\n\r\n    } \r\n\r\n});"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Shipping method set successfully\", function () { \r\n\r\n    pm.expect(pm.response.code).to.be.oneOf([200, 201]); \r\n\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"option_id\": \"{{shippingOptionId}}\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/carts/{{cartId}}/shipping-methods",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "carts",
+                "{{cartId}}",
+                "shipping-methods"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Payment Collection",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Payment collection created\", function () {\n    pm.expect(pm.response.code).to.be.oneOf([200, 201]);\n    let jsonData = pm.response.json();\n    let paymentCollectionId = jsonData.payment_collection.id;\n    pm.environment.set(\"paymentCollectionId\", paymentCollectionId);\n    console.log(\"Saved paymentCollectionId:\", paymentCollectionId);\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "x-publishable-api-key",
+                "value": "{{publishable_api_key}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"cart_id\": \"{{cartId}}\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/payment-collections",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "payment-collections"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Initialize Payment Session",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// If specific shipping option ID is unknown, fetch available shipping options\r\npm.sendRequest({\r\n    url: pm.environment.get(\"baseUrl\") + \"/shipping-options/\" + pm.environment.get(\"cartId\"),\r\n    method: \"GET\"\r\n}, function (err, res) {\r\n    if (!err && res.code === 200) {\r\n        let options = res.json().shipping_options;\r\n        if (options && options.length > 0) {\r\n            pm.environment.set(\"option_id\", options[0].id);\r\n        }\r\n    }\r\n});"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Payment session initialized\", function () { \r\n\r\n    pm.expect(pm.response.code).to.be.oneOf([200, 201]); \r\n\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"provider_id\": \"{{provider_id}}\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/payment-collections/{{paymentCollectionId}}/payment-sessions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "payment-collections",
+                "{{paymentCollectionId}}",
+                "payment-sessions"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Complete Order & Extract orderId",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Extract orderId dynamically\", function () {\n    let jsonData = pm.response.json();\n    pm.expect(jsonData.type).to.equal(\"order\");\n    pm.expect(jsonData.order).to.not.be.undefined;\n\n    let orderId = jsonData.order.id;\n    pm.expect(orderId).to.be.a(\"string\");\n    pm.environment.set(\"orderId\", orderId);\n    console.log(\"Dynamically extracted orderId:\", orderId);\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/carts/{{cartId}}/complete",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "carts",
+                "{{cartId}}",
+                "complete"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "auth": {
+        "type": "apikey",
+        "apikey": [
+          {
+            "key": "key",
+            "value": "x-publishable-api-key",
+            "type": "string"
+          },
+          {
+            "key": "value",
+            "value": "{{publishable_api_key}}",
+            "type": "string"
+          }
+        ]
+      }
+    },
+    {
+      "name": "02_Admin_Administration",
+      "item": [
+        {
+          "name": "Admin Authentication",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200 OK\", function () {\r\n    pm.response.to.have.status(200);\r\n})\r\n\r\nvar jsonData = pm.response.json();\r\npm.environment.set('apiToken', jsonData.token || pm.response.headers.get('Set-Cookie'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Cache-Control",
+                "value": "no-cache"
+              },
+              {
+                "key": "x-publishable-api-key",
+                "value": "pk_c6c27bfcd5b891a5cc2f4aec1e85a48a414a1368f4acec3ff7ee4b60dbd1910a"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n \"email\": \"student@vanlangsaigon.edu.vn\",\r\n \"password\": \"{{adminPassword}}\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{adminBaseUrl}}/auth/user/emailpass",
+              "host": [
+                "{{adminBaseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "user",
+                "emailpass"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          {
+            "key": "token",
+            "value": "{{apiToken}}",
+            "type": "string"
+          }
+        ]
+      }
+    },
+    {
+      "name": "03_Negative_Boundry_Test",
+      "item": [],
+      "auth": {
+        "type": "apikey",
+        "apikey": [
+          {
+            "key": "key",
+            "value": "x-publishable-api-key",
+            "type": "string"
+          },
+          {
+            "key": "value",
+            "value": "{{publishable_api_key}}",
+            "type": "string"
+          }
+        ]
+      }
+    }
+  ],
+  "event": [
+    {
+      "listen": "test",
+      "script": {
+        "exec": [
+          "// ========================================== \r",
+          "\r",
+          "// TIER 1: HTTP Status Code Assertion \r",
+          "\r",
+          "// ========================================== \r",
+          "\r",
+          "pm.test(\"[Tier 1] HTTP Status is successful (200 OK or 201 Created)\", function () { \r",
+          "\r",
+          "    pm.expect(pm.response.code).to.be.oneOf([200, 201]); \r",
+          "\r",
+          "}); \r",
+          "\r",
+          "// ========================================== \r",
+          "\r",
+          "// TIER 2: Performance SLA Assertion (< 2000ms) \r",
+          "\r",
+          "// ========================================== \r",
+          "\r",
+          "pm.test(\"[Tier 2] Response Time complies with SLA (< 2000ms)\", function () { \r",
+          "\r",
+          "    pm.expect(pm.response.responseTime).to.be.below(2000); \r",
+          "\r",
+          "}); \r",
+          "\r",
+          "// ========================================== \r",
+          "\r",
+          "// TIER 3: Content-Type Header Validation \r",
+          "\r",
+          "// ========================================== \r",
+          "\r",
+          "pm.test(\"[Tier 3] Content-Type header is application/json\", function () { \r",
+          "\r",
+          "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\"); \r",
+          "\r",
+          "});"
+        ],
+        "type": "text/javascript"
+      }
+    }
+  ]
+}
