@@ -2,5 +2,10 @@
   "dependencies": {
     "newman": "^6.2.3",
     "newman-reporter-htmlextra": "^1.23.1"
-  }
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.65.1",
+    "@types/node": "^26.6.11"
+  },
+  "scripts": {}
 }
